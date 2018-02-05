@@ -21,7 +21,7 @@
 #include <hpx/traits/is_valid_action.hpp>
 #include <hpx/traits/promise_local_result.hpp>
 #include <hpx/util/assert.hpp>
-#include <hpx/util/bind.hpp>
+#include <hpx/util/deferred_call.hpp>
 
 #include <type_traits>
 #include <utility>
@@ -46,7 +46,7 @@ namespace hpx { namespace detail
             >
         >::type
         operator()(Policy const& launch_policy,
-            components::client_base<Client, Stub> const& c, Ts &&... ts) const
+            components::client_base<Client, Stub> && c, Ts &&... ts) const
         {
             HPX_ASSERT(c.is_ready());
             return hpx::detail::async_impl<Action>(launch_policy, c.get_id(),
@@ -107,10 +107,10 @@ namespace hpx { namespace detail
             }
 
             // defer invocation otherwise
-            return c.then(util::bind(
-                util::one_shot(async_action_client_dispatch<Action>()),
-                std::forward<Policy_>(launch_policy), c, std::forward<Ts>(ts)...
-            ));
+            return c.then(util::deferred_call(
+                async_action_client_dispatch<Action>(),
+                std::forward<Policy_>(launch_policy), std::move(c),
+                std::forward<Ts>(ts)...));
         }
 
         // distribution policy
