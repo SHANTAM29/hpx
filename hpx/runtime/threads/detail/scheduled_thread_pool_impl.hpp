@@ -708,8 +708,9 @@ namespace hpx { namespace threads { namespace detail
         thread_state_enum newstate, thread_state_ex_enum newstate_ex,
         thread_priority priority, error_code& ec)
     {
+        std::atomic<bool> timer_started(false);
         return detail::set_thread_state_timed(*sched_, abs_time, id, newstate,
-            newstate_ex, priority, get_worker_thread_num(), ec);
+            newstate_ex, priority, get_worker_thread_num(), timer_started, ec);
     }
 
     ///////////////////////////////////////////////////////////////////////////

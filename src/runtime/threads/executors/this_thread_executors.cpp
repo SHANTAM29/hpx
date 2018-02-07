@@ -196,7 +196,9 @@ namespace hpx { namespace threads { namespace executors { namespace detail
         ++tasks_scheduled_;
 
         // now schedule new thread for execution
-        threads::detail::set_thread_state_timed(scheduler_, abs_time, id, ec);
+        std::atomic<bool> timer_started(false);
+        threads::detail::set_thread_state_timed(scheduler_, abs_time, id,
+            timer_started, ec);
         if (ec) {
             --tasks_scheduled_;
             return;

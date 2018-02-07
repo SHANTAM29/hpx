@@ -90,8 +90,9 @@ namespace hpx { namespace threads { namespace executors { namespace detail
         HPX_ASSERT(invalid_thread_id != id);    // would throw otherwise
 
         // now schedule new thread for execution
+        std::atomic<bool> timer_started(false);
         threads::detail::set_thread_state_timed(
-            *scheduler_base_, abs_time, id, ec);
+            *scheduler_base_, abs_time, id, timer_started, ec);
         if (ec) return;
 
         if (&ec != &throws)
